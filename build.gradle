@@ -46,3 +46,8 @@ task generateParser(type:JavaExec) {
   args = ['-Dlanguage=JavaScript', "${parserName}.g4", '-no-listener', '-visitor', '-o', '../../main-generated/javascript']
   workingDir = ANTLR_SRC
 }
+
+tasks.build {
+  dependsOn generateColorizeLexer
+  dependsOn generateParser
+}

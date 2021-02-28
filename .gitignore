@@ -6,4 +6,8 @@ dist
 .vs/texttemplate-editor/v16/.suo
 *.sqlite
 .vs/VSWorkspaceState.json
+*.java
+*.class
+.history
+build/*
 

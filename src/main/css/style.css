@@ -1,7 +1,11 @@
 h2 {
-    font-family: monospace
+  font-family: monospace;
 }
 
 body {
-    background-color: #eee;
+  background-color: #eee;
+}
+
+#interpolated {
+  padding-left: 1em;
 }

@@ -1,12 +1,10 @@
 parser grammar TextTemplateParser;
 
-options { tokenVocab=TextTemplateLexer; }
+options {
+	tokenVocab = TextTemplateLexer;
+}
 
-compilationUnit:
-	beginningBullet?
-    templateContents+ 
-    EOF
-    ;
+compilationUnit: beginningBullet? templateContents+ EOF;
 
 subtemplateSection: SUBTEMPLATES text* subtemplateSpecs;
 
@@ -14,7 +12,15 @@ subtemplateSpecs: subtemplateSpec*;
 
 subtemplateSpec: templateContextToken text*;
 
-templateContents: beginningBullet? (subtemplateSection | bullet | templateToken | templateContextCommaToken | templateContextToken | text+);
+templateContents:
+	beginningBullet? (
+		subtemplateSection
+		| bullet
+		| templateToken
+		| templateContextCommaToken
+		| templateContextToken
+		| text+
+	);
 
 bullet: NL BULLET SPACES?;
 
@@ -26,13 +32,28 @@ continuation: CONTINUATION;
 
 templateToken: LBRACE bracedOptions RBRACE;
 
-bracedOptions: bracedArrow #braceArrow | bracedThinArrow #braceThinArrow | optionallyInvoked #braced | predicateExpression #bracedPredicate;
+bracedOptions:
+	bracedArrow				# braceArrow
+	| bracedThinArrow		# braceThinArrow
+	| optionallyInvoked		# braced
+	| predicateExpression	# bracedPredicate;
 
 methodInvoked: methodable methodInvocation+;
 
-predicateExpression: LP predicateExpression RP #nestedPredicate | relationalOperand RELATIONAL relationalOperand #relationalOperation | NOT predicateExpression #notPredicate | predicateExpression (AND|OR) predicateExpression #logicalOperator | (methodInvoked | namedSubtemplate | identifierCondition) #condition;
+predicateExpression:
+	LP predicateExpression RP									# nestedPredicate
+	| relationalOperand RELATIONAL relationalOperand			# relationalOperation
+	| NOT predicateExpression									# notPredicate
+	| predicateExpression (AND | OR) predicateExpression		# logicalOperator
+	| (methodInvoked | namedSubtemplate | identifierCondition)	# condition;
 
-relationalOperand: optionallyInvoked | quoteOperand | apostropheOperand | namedSubtemplate | identifierOperand | digits;
+relationalOperand:
+	optionallyInvoked
+	| quoteOperand
+	| apostropheOperand
+	| namedSubtemplate
+	| identifierOperand
+	| digits;
 
 digits: MINUS* DIGITS;
 
@@ -44,27 +65,40 @@ identifierOperand: IDENTIFIER;
 
 identifierCondition: IDENTIFIER (DOT IDENTIFIER)*;
 
-templateContextCommaToken: LBRACE contextToken COMMA optionallyInvoked RBRACE;
+templateContextCommaToken:
+	LBRACE contextToken COMMA optionallyInvoked RBRACE;
 
 templateContextToken: LBRACE contextToken RBRACE;
 
-contextToken: ((namedSubtemplate | optionallyInvoked) COLON | COLON) (namedSubtemplate | optionallyInvoked);
+contextToken: (
+		(namedSubtemplate | optionallyInvoked) COLON
+		| COLON
+	) (namedSubtemplate | optionallyInvoked);
 
 templateSpec: namedSubtemplate | bracketedTemplateSpec;
 
-bracketedTemplateSpec: LBRACKET templateContents* subtemplateSection? RBRACKET;
+bracketedTemplateSpec:
+	LBRACKET templateContents* subtemplateSection? RBRACKET;
 
-invokedTemplateSpec: LBRACKET beginningBullet? templateContents* RBRACKETLP;
+invokedTemplateSpec:
+	LBRACKET beginningBullet? templateContents* RBRACKETLP;
 
 bracedArrow: predicateExpression ARROW bracedArrowTemplateSpec;
 
-bracedThinArrow: predicateExpression THINARROW optionallyInvoked;
+bracedThinArrow:
+	predicateExpression THINARROW optionallyInvoked;
 
-bracedArrowTemplateSpec: optionallyInvoked COMMA optionallyInvoked | optionallyInvoked;
+bracedArrowTemplateSpec:
+	optionallyInvoked COMMA optionallyInvoked
+	| optionallyInvoked;
 
-methodable: QUOTE TEXT? QUOTE #quoteLiteral | APOSTROPHE TEXT* APOSTROPHE #apostropheLiteral | templateSpec #methodableTemplateSpec | (IDENTIFIER|TEXT) (DOT (IDENTIFIER|TEXT))* #identifier;
+methodable:
+	QUOTE TEXT? QUOTE									# quoteLiteral
+	| APOSTROPHE TEXT* APOSTROPHE						# apostropheLiteral
+	| templateSpec										# methodableTemplateSpec
+	| (IDENTIFIER | TEXT) (DOT (IDENTIFIER | TEXT))*	# identifier;
 
-methodInvocation: (method|DOT invokedTemplateSpec) arguments* RP;
+methodInvocation: (method | DOT invokedTemplateSpec) arguments* RP;
 
 method: METHODNAME;
 
@@ -72,6 +106,10 @@ arguments: argument (COMMA argument)*;
 
 optionallyInvoked: (methodInvoked | methodable);
 
-argument: REGEX #regex | optionallyInvoked #optionallyInvokedArgument | predicateExpression #predicateArgument | digits #digitsArgument;
+argument:
+	REGEX					# regex
+	| optionallyInvoked		# optionallyInvokedArgument
+	| predicateExpression	# predicateArgument
+	| digits				# digitsArgument;
 
 namedSubtemplate: POUND IDENTIFIER;
